@@ -28,6 +28,11 @@ commands:
     usage: /baltop
     aliases: [balancetop, topbal]
     permission: economy.use
+  shop:
+    description: Open the GUI Server Shop
+    usage: /shop
+    aliases: [store, guishop]
+    permission: economy.use
   pay:
     description: Send money to another player profile
     usage: /pay <player> <amount>

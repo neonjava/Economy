@@ -3,6 +3,8 @@ package neonjava.in.economy.gui;
 import neonjava.in.economy.Economy;
 import neonjava.in.economy.model.Transaction;
 import neonjava.in.economy.model.UserProfile;
+import neonjava.in.economy.shop.ShopCategory;
+import neonjava.in.economy.shop.ShopItem;
 import neonjava.in.economy.util.ThemeManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -46,6 +48,101 @@ public class ProfileGUI {
 
     public String getBaltopGuiTitle() {
         return ThemeManager.color("&8" + plugin.getThemeManager().getSecondary() + "&lTop Balances Leaderboard");
+    }
+
+    public String getShopCategoriesGuiTitle() {
+        return ThemeManager.color("&8" + plugin.getThemeManager().getSecondary() + "&lServer Shop Categories");
+    }
+
+    public String getShopCategoryPrefix() {
+        return ThemeManager.color("&8Shop: ");
+    }
+
+    public void openShopCategoriesGUI(Player viewer) {
+        ThemeManager tm = plugin.getThemeManager();
+        Inventory gui = Bukkit.createInventory(null, 54, getShopCategoriesGuiTitle());
+
+        ItemStack border = createItem(tm.getBorderGlass(), " ");
+        ItemStack filler = createItem(tm.getFillerGlass(), " ");
+
+        for (int i = 0; i < 54; i++) {
+            if (i < 9 || i >= 45 || i % 9 == 0 || i % 9 == 8) {
+                gui.setItem(i, border);
+            } else {
+                gui.setItem(i, filler);
+            }
+        }
+
+        for (ShopCategory cat : plugin.getShopManager().getCategories()) {
+            List<String> lore = new ArrayList<>();
+            lore.add(tm.getNeutral() + "==============================");
+            lore.add(tm.getSecondary() + "Category Items: " + tm.getAccent() + cat.getItems().size());
+            lore.add(tm.getNeutral() + "==============================");
+            lore.add(tm.getSuccess() + "▶ Click to browse " + ThemeManager.color(cat.getName()));
+            gui.setItem(cat.getSlot(), createItem(cat.getIconMaterial(), ThemeManager.color(cat.getName()), lore));
+        }
+
+        // Slot 49: Close
+        gui.setItem(49, createItem(Material.BARRIER, tm.getError() + "§lClose Shop"));
+
+        viewer.openInventory(gui);
+    }
+
+    public void openShopItemsGUI(Player viewer, ShopCategory category) {
+        ThemeManager tm = plugin.getThemeManager();
+        String title = getShopCategoryPrefix() + ThemeManager.color(category.getName());
+        Inventory gui = Bukkit.createInventory(null, 54, title);
+
+        ItemStack border = createItem(tm.getBorderGlass(), " ");
+        ItemStack filler = createItem(tm.getFillerGlass(), " ");
+
+        for (int i = 0; i < 54; i++) {
+            if (i >= 45) {
+                gui.setItem(i, border);
+            } else {
+                gui.setItem(i, filler);
+            }
+        }
+
+        int slot = 0;
+        for (ShopItem item : category.getItems()) {
+            if (slot >= 45) break;
+
+            List<String> lore = new ArrayList<>();
+            lore.add(tm.getNeutral() + "==============================");
+            if (item.isBuyable()) {
+                lore.add(tm.getSecondary() + "Buy Price: " + tm.getSuccess() + plugin.getProfileManager().formatCurrency(item.getBuyPrice()) + tm.getNeutral() + " (x" + item.getDefaultAmount() + ")");
+            } else {
+                lore.add(tm.getSecondary() + "Buy Price: " + tm.getError() + "N/A");
+            }
+
+            if (item.isSellable()) {
+                lore.add(tm.getSecondary() + "Sell Price: " + tm.getError() + plugin.getProfileManager().formatCurrency(item.getSellPrice()) + tm.getNeutral() + " (x" + item.getDefaultAmount() + ")");
+            } else {
+                lore.add(tm.getSecondary() + "Sell Price: " + tm.getError() + "N/A");
+            }
+            lore.add(tm.getNeutral() + "==============================");
+
+            if (item.isBuyable()) {
+                lore.add(tm.getSuccess() + "▶ Left-Click to Buy x" + item.getDefaultAmount());
+                lore.add(tm.getPrimary() + "▶ Shift+Left-Click to Buy x64");
+            }
+            if (item.isSellable()) {
+                lore.add(tm.getError() + "▶ Right-Click to Sell x" + item.getDefaultAmount());
+                lore.add(tm.getSecondary() + "▶ Shift+Right-Click to Sell All");
+            }
+
+            ItemStack is = createItem(item.getMaterial(), tm.getPrimary() + item.getDisplayName(), lore);
+            is.setAmount(Math.min(64, Math.max(1, item.getDefaultAmount())));
+            gui.setItem(slot++, is);
+        }
+
+        // Slot 45: Back to Categories
+        gui.setItem(45, createItem(Material.ARROW, tm.getSuccess() + "◀ Back to Categories"));
+        // Slot 49: Close
+        gui.setItem(49, createItem(Material.BARRIER, tm.getError() + "Close Shop"));
+
+        viewer.openInventory(gui);
     }
 
     public void openBaltopGUI(Player viewer) {

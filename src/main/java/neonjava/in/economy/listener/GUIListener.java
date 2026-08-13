@@ -4,12 +4,16 @@ import neonjava.in.economy.Economy;
 import neonjava.in.economy.gui.ProfileGUI;
 import neonjava.in.economy.model.Transaction;
 import neonjava.in.economy.model.UserProfile;
+import neonjava.in.economy.shop.ShopCategory;
+import neonjava.in.economy.shop.ShopItem;
 import neonjava.in.economy.util.ThemeManager;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -34,7 +38,13 @@ public class GUIListener implements Listener {
 
         ProfileGUI gui = plugin.getProfileGUI();
 
-        if (title.equals(gui.getBaltopGuiTitle())) {
+        if (title.equals(gui.getShopCategoriesGuiTitle())) {
+            event.setCancelled(true);
+            handleShopCategoriesClick(event, player);
+        } else if (title.startsWith(gui.getShopCategoryPrefix())) {
+            event.setCancelled(true);
+            handleShopItemsClick(event, player, title.substring(gui.getShopCategoryPrefix().length()));
+        } else if (title.equals(gui.getBaltopGuiTitle())) {
             event.setCancelled(true);
             handleBaltopGUIClick(event, player);
         } else if (title.startsWith(gui.getMainGuiPrefix())) {
@@ -55,6 +65,142 @@ public class GUIListener implements Listener {
         }
     }
 
+    private void handleShopCategoriesClick(InventoryClickEvent event, Player player) {
+        int slot = event.getRawSlot();
+        if (slot < 0 || slot >= 54) return;
+
+        if (slot == 49) {
+            player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.0f);
+            player.closeInventory();
+            return;
+        }
+
+        for (ShopCategory cat : plugin.getShopManager().getCategories()) {
+            if (cat.getSlot() == slot) {
+                player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.0f);
+                plugin.getProfileGUI().openShopItemsGUI(player, cat);
+                return;
+            }
+        }
+    }
+
+    private void handleShopItemsClick(InventoryClickEvent event, Player player, String categoryName) {
+        int slot = event.getRawSlot();
+        if (slot < 0 || slot >= 54) return;
+
+        if (slot == 45) { // Back to categories
+            player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.0f);
+            plugin.getProfileGUI().openShopCategoriesGUI(player);
+            return;
+        }
+
+        if (slot == 49) { // Close
+            player.closeInventory();
+            return;
+        }
+
+        ShopCategory targetCategory = null;
+        for (ShopCategory cat : plugin.getShopManager().getCategories()) {
+            if (ThemeManager.color(cat.getName()).equalsIgnoreCase(categoryName) ||
+                    ChatColor.stripColor(ThemeManager.color(cat.getName())).equalsIgnoreCase(ChatColor.stripColor(categoryName))) {
+                targetCategory = cat;
+                break;
+            }
+        }
+
+        if (targetCategory == null || slot >= targetCategory.getItems().size()) return;
+
+        ShopItem item = targetCategory.getItems().get(slot);
+        UserProfile profile = plugin.getProfileManager().getOrCreateProfile(player);
+        ThemeManager tm = plugin.getThemeManager();
+
+        ClickType click = event.getClick();
+
+        if (click.isLeftClick()) { // BUY ACTION
+            if (!item.isBuyable()) {
+                player.sendMessage(tm.formatMessage("&cThis item cannot be purchased."));
+                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+                return;
+            }
+
+            int count = click.isShiftClick() ? 64 : item.getDefaultAmount();
+            double totalPrice = item.getBuyPrice() * ((double) count / item.getDefaultAmount());
+
+            if (profile.getBalance() < totalPrice) {
+                player.sendMessage(tm.formatMessage("&cInsufficient balance to buy " + count + "x " + item.getDisplayName() + "! Cost: &e" + plugin.getProfileManager().formatCurrency(totalPrice)));
+                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+                return;
+            }
+
+            profile.withdraw(totalPrice, Transaction.Type.WITHDRAW, "Bought " + count + "x " + item.getDisplayName(), "Shop");
+            player.getInventory().addItem(new ItemStack(item.getMaterial(), count));
+
+            plugin.getProfileManager().saveProfiles();
+            player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.2f);
+            player.sendMessage(tm.formatMessage("&aPurchased &e" + count + "x " + item.getDisplayName() + " &afor &e" + plugin.getProfileManager().formatCurrency(totalPrice)));
+
+        } else if (click.isRightClick()) { // SELL ACTION
+            if (!item.isSellable()) {
+                player.sendMessage(tm.formatMessage("&cThis item cannot be sold."));
+                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+                return;
+            }
+
+            int count;
+            if (click.isShiftClick()) {
+                count = countItemInInventory(player, item.getMaterial());
+                if (count == 0) {
+                    player.sendMessage(tm.formatMessage("&cYou do not have any " + item.getDisplayName() + " in your inventory!"));
+                    player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+                    return;
+                }
+            } else {
+                count = item.getDefaultAmount();
+                if (countItemInInventory(player, item.getMaterial()) < count) {
+                    player.sendMessage(tm.formatMessage("&cYou do not have " + count + "x " + item.getDisplayName() + " to sell."));
+                    player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+                    return;
+                }
+            }
+
+            double totalEarned = (item.getSellPrice() / item.getDefaultAmount()) * count;
+            removeItemFromInventory(player, item.getMaterial(), count);
+            profile.deposit(totalEarned, Transaction.Type.DEPOSIT, "Sold " + count + "x " + item.getDisplayName(), "Shop");
+
+            plugin.getProfileManager().saveProfiles();
+            player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
+            player.sendMessage(tm.formatMessage("&aSold &e" + count + "x " + item.getDisplayName() + " &afor &e" + plugin.getProfileManager().formatCurrency(totalEarned)));
+        }
+    }
+
+    private int countItemInInventory(Player player, Material material) {
+        int count = 0;
+        for (ItemStack stack : player.getInventory().getContents()) {
+            if (stack != null && stack.getType() == material) {
+                count += stack.getAmount();
+            }
+        }
+        return count;
+    }
+
+    private void removeItemFromInventory(Player player, Material material, int amountToRemove) {
+        int remaining = amountToRemove;
+        ItemStack[] contents = player.getInventory().getContents();
+        for (int i = 0; i < contents.length; i++) {
+            ItemStack stack = contents[i];
+            if (stack != null && stack.getType() == material) {
+                if (stack.getAmount() <= remaining) {
+                    remaining -= stack.getAmount();
+                    player.getInventory().setItem(i, null);
+                } else {
+                    stack.setAmount(stack.getAmount() - remaining);
+                    remaining = 0;
+                }
+            }
+            if (remaining <= 0) break;
+        }
+    }
+
     private void handleBaltopGUIClick(InventoryClickEvent event, Player player) {
         int slot = event.getRawSlot();
         if (slot < 0 || slot >= 54) return;
@@ -66,7 +212,7 @@ public class GUIListener implements Listener {
         }
 
         ItemStack clicked = event.getCurrentItem();
-        if (clicked == null || clicked.getType() != org.bukkit.Material.PLAYER_HEAD) return;
+        if (clicked == null || clicked.getType() != Material.PLAYER_HEAD) return;
 
         if (clicked.hasItemMeta() && clicked.getItemMeta() instanceof org.bukkit.inventory.meta.SkullMeta) {
             org.bukkit.inventory.meta.SkullMeta meta = (org.bukkit.inventory.meta.SkullMeta) clicked.getItemMeta();

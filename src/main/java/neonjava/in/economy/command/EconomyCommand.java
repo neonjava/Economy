@@ -43,8 +43,9 @@ public class EconomyCommand implements CommandExecutor, TabCompleter {
         if (sub.equals("reload")) {
             plugin.reloadConfig();
             plugin.getThemeManager().reloadTheme();
+            plugin.getShopManager().loadShop();
             plugin.getProfileManager().loadProfiles();
-            sender.sendMessage(tm.formatMessage("&aConfiguration, color theme, and player profiles reloaded successfully!"));
+            sender.sendMessage(tm.formatMessage("&aConfiguration, color theme, shop categories, and player profiles reloaded successfully!"));
             return true;
         }
 

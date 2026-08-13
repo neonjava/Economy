@@ -1,0 +1,158 @@
+# Economy GUI Shop Configuration
+
+categories:
+  blocks:
+    name: "&f&lBuilding Blocks"
+    icon: "BRICKS"
+    slot: 11
+    items:
+      STONE:
+        material: "STONE"
+        display-name: "Stone"
+        buy-price: 10.0
+        sell-price: 2.0
+        amount: 64
+      OAK_LOG:
+        material: "OAK_LOG"
+        display-name: "Oak Log"
+        buy-price: 20.0
+        sell-price: 5.0
+        amount: 16
+      GLASS:
+        material: "GLASS"
+        display-name: "Glass"
+        buy-price: 15.0
+        sell-price: 3.0
+        amount: 16
+      SMOOTH_STONE:
+        material: "SMOOTH_STONE"
+        display-name: "Smooth Stone"
+        buy-price: 25.0
+        sell-price: 6.0
+        amount: 16
+
+  minerals:
+    name: "&b&lOres & Minerals"
+    icon: "DIAMOND"
+    slot: 13
+    items:
+      COAL:
+        material: "COAL"
+        display-name: "Coal"
+        buy-price: 15.0
+        sell-price: 5.0
+        amount: 16
+      IRON_INGOT:
+        material: "IRON_INGOT"
+        display-name: "Iron Ingot"
+        buy-price: 50.0
+        sell-price: 15.0
+        amount: 1
+      GOLD_INGOT:
+        material: "GOLD_INGOT"
+        display-name: "Gold Ingot"
+        buy-price: 100.0
+        sell-price: 30.0
+        amount: 1
+      DIAMOND:
+        material: "DIAMOND"
+        display-name: "Diamond"
+        buy-price: 500.0
+        sell-price: 150.0
+        amount: 1
+      EMERALD:
+        material: "EMERALD"
+        display-name: "Emerald"
+        buy-price: 750.0
+        sell-price: 250.0
+        amount: 1
+      NETHERITE_INGOT:
+        material: "NETHERITE_INGOT"
+        display-name: "Netherite Ingot"
+        buy-price: 2500.0
+        sell-price: 800.0
+        amount: 1
+
+  farming:
+    name: "&a&lFood & Farming"
+    icon: "GOLDEN_APPLE"
+    slot: 15
+    items:
+      COOKED_BEEF:
+        material: "COOKED_BEEF"
+        display-name: "Steak"
+        buy-price: 20.0
+        sell-price: 4.0
+        amount: 8
+      GOLDEN_APPLE:
+        material: "GOLDEN_APPLE"
+        display-name: "Golden Apple"
+        buy-price: 250.0
+        sell-price: 50.0
+        amount: 1
+      WHEAT:
+        material: "WHEAT"
+        display-name: "Wheat"
+        buy-price: 10.0
+        sell-price: 2.0
+        amount: 16
+      SUGAR_CANE:
+        material: "SUGAR_CANE"
+        display-name: "Sugar Cane"
+        buy-price: 15.0
+        sell-price: 3.0
+        amount: 16
+
+  combat:
+    name: "&c&lCombat & Armor"
+    icon: "DIAMOND_SWORD"
+    slot: 29
+    items:
+      DIAMOND_SWORD:
+        material: "DIAMOND_SWORD"
+        display-name: "Diamond Sword"
+        buy-price: 1200.0
+        sell-price: 300.0
+        amount: 1
+      DIAMOND_CHESTPLATE:
+        material: "DIAMOND_CHESTPLATE"
+        display-name: "Diamond Chestplate"
+        buy-price: 4000.0
+        sell-price: 1000.0
+        amount: 1
+      BOW:
+        material: "BOW"
+        display-name: "Bow"
+        buy-price: 150.0
+        sell-price: 30.0
+        amount: 1
+      ARROW:
+        material: "ARROW"
+        display-name: "Arrow"
+        buy-price: 10.0
+        sell-price: 2.0
+        amount: 16
+
+  special:
+    name: "&d&lSpecial & Rare Items"
+    icon: "BEACON"
+    slot: 33
+    items:
+      BEACON:
+        material: "BEACON"
+        display-name: "Beacon"
+        buy-price: 15000.0
+        sell-price: 4000.0
+        amount: 1
+      ELYTRA:
+        material: "ELYTRA"
+        display-name: "Elytra"
+        buy-price: 25000.0
+        sell-price: 6000.0
+        amount: 1
+      TOTEM_OF_UNDYING:
+        material: "TOTEM_OF_UNDYING"
+        display-name: "Totem of Undying"
+        buy-price: 5000.0
+        sell-price: 1200.0
+        amount: 1

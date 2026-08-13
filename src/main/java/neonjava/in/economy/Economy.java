@@ -8,6 +8,7 @@ import neonjava.in.economy.listener.ChatInputListener;
 import neonjava.in.economy.listener.GUIListener;
 import neonjava.in.economy.listener.PlayerJoinListener;
 import neonjava.in.economy.manager.ProfileManager;
+import neonjava.in.economy.shop.ShopManager;
 import neonjava.in.economy.util.ThemeManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -18,6 +19,7 @@ public final class Economy extends JavaPlugin {
     private ProfileGUI profileGUI;
     private ThemeManager themeManager;
     private ChatInputListener chatInputListener;
+    private ShopManager shopManager;
 
     @Override
     public void onEnable() {
@@ -26,6 +28,7 @@ public final class Economy extends JavaPlugin {
 
         // Initialize Theme Manager & Plugin Components
         this.themeManager = new ThemeManager(this);
+        this.shopManager = new ShopManager(this);
         this.profileManager = new ProfileManager(this);
         this.profileGUI = new ProfileGUI(this);
         this.chatInputListener = new ChatInputListener(this);
@@ -59,6 +62,10 @@ public final class Economy extends JavaPlugin {
         BaltopCommand baltopCmd = new BaltopCommand(this);
         getCommand("baltop").setExecutor(baltopCmd);
         getCommand("baltop").setTabCompleter(baltopCmd);
+
+        ShopCommand shopCmd = new ShopCommand(this);
+        getCommand("shop").setExecutor(shopCmd);
+        getCommand("shop").setTabCompleter(shopCmd);
 
         // Vault API Hook Registration
         if (Bukkit.getPluginManager().getPlugin("Vault") != null) {
@@ -128,5 +135,9 @@ public final class Economy extends JavaPlugin {
 
     public ChatInputListener getChatInputListener() {
         return chatInputListener;
+    }
+
+    public ShopManager getShopManager() {
+        return shopManager;
     }
 }
