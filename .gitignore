@@ -1,0 +1,11 @@
+# Build directories
+target/
+build/
+.gradle/
+.idea/
+*.iml
+*.jar
+
+# Runtime data
+profiles.yml
+economy.db

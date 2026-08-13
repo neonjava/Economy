@@ -1,0 +1,50 @@
+name: Economy
+version: '1.0.0'
+main: neonjava.in.economy.Economy
+api-version: '1.20'
+load: POSTWORLD
+softdepend: [Vault]
+author: neonjava
+description: GUI-based Economy and User Profile Management Plugin for Minecraft
+
+commands:
+  profilemanage:
+    description: Open profile management GUI for a player
+    usage: /profilemanage [username]
+    aliases: [pm, pmanage, profmanage]
+    permission: economy.use
+  profile:
+    description: Open user economy profile GUI
+    usage: /profile [username]
+    aliases: [prof]
+    permission: economy.use
+  balance:
+    description: Check user balance
+    usage: /balance [username]
+    aliases: [bal, money]
+    permission: economy.use
+  baltop:
+    description: Open top balance leaderboard GUI
+    usage: /baltop
+    aliases: [balancetop, topbal]
+    permission: economy.use
+  pay:
+    description: Send money to another player profile
+    usage: /pay <player> <amount>
+    permission: economy.use
+  eco:
+    description: Admin economy management command
+    usage: /eco <give|take|set|reset|save|reload> [player] [amount]
+    aliases: [economy]
+    permission: economy.admin
+
+permissions:
+  economy.use:
+    description: Allows using basic economy commands
+    default: true
+  economy.profilemanage:
+    description: Allows managing player profiles via GUI
+    default: op
+  economy.admin:
+    description: Full administrative access to economy features
+    default: op

@@ -1,0 +1,39 @@
+# Economy Plugin Configuration
+
+# Color Theme Configuration
+# Presets available: LIGHT, AMETHYST, NEON_CYAN, EMERALD, GOLD, CUSTOM
+theme:
+  preset: "LIGHT"
+  prefix: "&8[&d&lEconomy&8] "
+  primary: "&f"        # Bright White
+  secondary: "&d"      # Light Pastel Purple
+  accent: "&b"         # Soft Cyan
+  success: "&a"        # Pastel Green
+  error: "&c"          # Soft Red
+  neutral: "&7"        # Muted Gray
+  gui-border-glass: "WHITE_STAINED_GLASS_PANE"
+  gui-filler-glass: "PURPLE_STAINED_GLASS_PANE"
+
+economy:
+  currency-symbol: "$"
+  currency-name: "Dollars"
+  starting-balance: 1000.0
+  auto-save-interval-minutes: 5
+
+# Player Bank & Savings Account System
+bank:
+  enabled: true
+  interest-rate-percent: 1.5
+  interest-interval-hours: 24
+
+# Database Engine Configuration
+# Storage Types: YML (Flat-file profiles.yml), SQLITE (local economy.db), MYSQL (Remote MySQL/MariaDB)
+database:
+  type: "YML"
+  sqlite-file: "economy.db"
+  mysql:
+    host: "localhost"
+    port: 3306
+    database: "economy"
+    username: "root"
+    password: ""
